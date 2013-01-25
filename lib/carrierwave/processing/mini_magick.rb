@@ -84,6 +84,10 @@ module CarrierWave
       def resize_and_pad(width, height, background=:transparent, gravity=::Magick::CenterGravity)
         process :resize_and_pad => [width, height, background, gravity]
       end
+
+      def resize_to_height(height)
+        process :resize_to_height => height
+      end
     end
 
     ##
@@ -229,6 +233,27 @@ module CarrierWave
           cmd.gravity gravity
           cmd.extent "#{width}x#{height}"
         end
+        img = yield(img) if block_given?
+        img
+      end
+    end
+
+    ##
+    # Resize the image to fit within the specified height while retaining
+    # the original aspect ratio. The image may be wider or narrower than
+    # original width, but will be exactly the specified height.
+    #
+    # === Parameters
+    #
+    # [height (Integer)] the height to scale the image to
+    #
+    # === Yields
+    #
+    # [MiniMagick::Image] additional manipulations to perform
+    #
+    def resize_to_height(height)
+      manipulate! do |img|
+        img.resize "x#{height}"
         img = yield(img) if block_given?
         img
       end
